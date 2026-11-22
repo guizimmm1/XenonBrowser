@@ -32,7 +32,7 @@ jobs:
           PREFIX="$HOME/xsdk-gcc" \
           WORK="$HOME/xsdk-gcc-work" \
           JOBS=2 \
-          tools/toolchain/build.sh
+          bash tools/toolchain/build.sh
 
       - name: Build SDK
         run: |
@@ -62,3 +62,4 @@ jobs:
           path: sdk-artifact/
           if-no-files-found: error
           retention-days: 7
+          
