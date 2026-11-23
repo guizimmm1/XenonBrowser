@@ -157,8 +157,8 @@ jobs:
           CFLAGS="-mcpu=cell -fno-pic -O2" \
             ./configure --host=powerpc-xsdk-elf \
               --prefix="$PREFIX" --disable-shared --enable-static
-          make -j2
-          make install
+          make -j2 libjpeg.la
+          make install-libLTLIBRARIES install-includeHEADERS install-pkgconfigDATA
 
       - name: Build utf8proc
         run: |
