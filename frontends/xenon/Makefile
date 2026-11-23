@@ -19,7 +19,7 @@ XENON_MBEDTLS ?= $(XENON_ROOT)/third_party/mbedtls-xenon
 CFLAGS += -I$(XENON_MBEDTLS)/include
 # The library was built with this user config (TLS 1.3 off, settable clock);
 # compiling against a different one would change the ABI.
-CFLAGS += -DMBEDTLS_USER_CONFIG_FILE='"$(XENON_MBEDTLS)/configs/config-xenon-netsurf.h"'
+CFLAGS += -DMBEDTLS_USER_CONFIG_FILE='"$(XENON_MBEDTLS)/configs/config-xsdk.h"'
 
 LDFLAGS += -lm -lz \
 	   -L$(XENON_MBEDTLS)/build-xsdk/library -lmbedtls -lmbedx509 -lmbedcrypto
