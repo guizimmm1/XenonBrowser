@@ -118,7 +118,11 @@ jobs:
           export AR="${TC}ar"
           export RANLIB="${TC}ranlib"
           export CFLAGS="-mcpu=cell -fno-pic -O2 -Wno-error"
-          CHOST=powerpc-xsdk-elf ./configure --prefix="$PREFIX" --static
+          CHOST=powerpc-xsdk-elf ./configure --prefix="$PREFIX" --static || {
+            echo "===== ERRO REAL DO ZLIB ====="
+            tail -n 120 config.log
+            exit 1
+          }
           make -j2
           make install
 
