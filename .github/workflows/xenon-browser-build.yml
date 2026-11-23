@@ -140,7 +140,7 @@ jobs:
             tail -n 120 configure.log
             exit 1
           }
-          make -j2
+          make -j2 libz.a
           make install
 
       - name: Build JPEG
