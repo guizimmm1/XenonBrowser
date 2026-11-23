@@ -262,6 +262,7 @@ jobs:
           XENON_PREFIX := $PREFIX
           CFLAGS += -B$HOME/xsdk-gcc/bin/
           CXXFLAGS += -B$HOME/xsdk-gcc/bin/
+          LDFLAGS += -B$HOME/xsdk-gcc/bin/
           EOF
 
       - name: Compile Xenon Browser
