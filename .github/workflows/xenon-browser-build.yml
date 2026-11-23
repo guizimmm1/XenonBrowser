@@ -172,6 +172,20 @@ jobs:
           install -D -m 644 deps/utf8proc/utf8proc.h "$PREFIX/include/utf8proc.h"
           install -D -m 644 deps/utf8proc/libutf8proc.a "$PREFIX/lib/libutf8proc.a"
 
+          mkdir -p "$PREFIX/lib/pkgconfig"
+          cat > "$PREFIX/lib/pkgconfig/libutf8proc.pc" <<EOF
+          prefix=$PREFIX
+          exec_prefix=\${prefix}
+          libdir=\${prefix}/lib
+          includedir=\${prefix}/include
+
+          Name: libutf8proc
+          Description: UTF-8 processing library
+          Version: 2.10.0
+          Libs: -L\${libdir} -lutf8proc
+          Cflags: -I\${includedir}
+          EOF
+
       - name: Build PNG
         run: |
           set -euo pipefail
