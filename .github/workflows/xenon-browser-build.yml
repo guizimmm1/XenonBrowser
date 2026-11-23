@@ -117,8 +117,8 @@ jobs:
           export CC="${TC}gcc"
           export AR="${TC}ar"
           export RANLIB="${TC}ranlib"
-          export CFLAGS="-mcpu=cell -fno-pic -O2"
-          ./configure --prefix="$PREFIX" --static
+          export CFLAGS="-mcpu=cell -fno-pic -O2 -Wno-error"
+          CHOST=powerpc-xsdk-elf ./configure --prefix="$PREFIX" --static
           make -j2
           make install
 
