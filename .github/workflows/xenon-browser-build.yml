@@ -61,6 +61,7 @@ jobs:
           ln -sf powerpc-xsdk-elf-as "$HOME/xsdk-gcc/bin/as"
           ln -sf powerpc-xsdk-elf-ld "$HOME/xsdk-gcc/bin/ld"
           export PATH="$HOME/xsdk-gcc/bin:$PATH"
+          echo "$HOME/xsdk-gcc/bin" >> "$GITHUB_PATH"
 
           CC1_PATH="$("$HOME/xsdk-gcc/bin/powerpc-xsdk-elf-gcc" -print-prog-name=cc1)"
           echo "CC1 encontrado em: $CC1_PATH"
