@@ -343,6 +343,8 @@ static void redraw_window(void)
 	drawn_page.sy = sy;
 	damage_all = false;
 	damage_some = false;
+
+        xenon_plot_stats();
 }
 
 int main(int argc, char **argv)
