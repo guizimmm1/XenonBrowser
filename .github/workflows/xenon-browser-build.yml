@@ -158,7 +158,7 @@ jobs:
             ./configure --host=powerpc-xsdk-elf \
               --prefix="$PREFIX" --disable-shared --enable-static
           make -j2 libjpeg.la
-          make install-libLTLIBRARIES install-includeHEADERS install-pkgconfigDATA
+          make install-libLTLIBRARIES install-includeHEADERS
 
       - name: Build utf8proc
         run: |
