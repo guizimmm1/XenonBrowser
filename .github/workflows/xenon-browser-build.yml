@@ -184,6 +184,7 @@ jobs:
             -DPNG_STATIC=ON \
             -DPNG_TESTS=OFF \
             -DPNG_TOOLS=OFF \
+            -DPNG_POWERPC_VSX=off \
             -DZLIB_LIBRARY="$PREFIX/lib/libz.a" \
             -DZLIB_INCLUDE_DIR="$PREFIX/include"
           cmake --build "$RUNNER_TEMP/libpng-build" --parallel 2
