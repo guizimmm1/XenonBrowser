@@ -113,6 +113,7 @@ jobs:
           git clone --no-checkout https://github.com/xenosworks/mbedtls-xenon.git third_party/mbedtls-xenon
           git -C third_party/mbedtls-xenon fetch --depth 1 origin 1500b8ac2ab62f3ce6c6bebafac777e55dbee93b
           git -C third_party/mbedtls-xenon checkout --detach FETCH_HEAD
+          git -C third_party/mbedtls-xenon submodule update --init --recursive
 
           git clone --no-checkout https://github.com/netsurf-browser/netsurf.git netsurf-src
           git -C netsurf-src fetch --depth 1 origin 39da3c3a40af4566d86500ff3052dfdc7f9a0378
