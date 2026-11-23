@@ -135,7 +135,7 @@ static nserror set_defaults(struct nsoption_s *defaults)
 
 	/* The console has room for this; the stock 12 MB gives images only
 	 * a 3 MB cache, which a Wikipedia article overflows. */
-	nsoption_set_int(memory_cache_size, 64 * 1024 * 1024);
+	nsoption_set_int(memory_cache_size, 32 * 1024 * 1024);
 
 	/* Duktape runs page scripts (ECMAScript 5.1 and NetSurf's DOM). A
 	 * script gets 5 s before it is stopped, so a heavy page can't hang

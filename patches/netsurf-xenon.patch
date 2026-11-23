@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index d6ba683..6f034f6 100644
+index d6ba68388..6f034f6c3 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -131,7 +131,9 @@ $(eval $(call pkg_config_find_and_add,libdom,DOM))
@@ -13,7 +13,7 @@ index d6ba683..6f034f6 100644
  # Optional libraries with pkgconfig
  
 diff --git a/content/handlers/html/css.c b/content/handlers/html/css.c
-index 0bc3884..b29f0fa 100644
+index 0bc38844f..b29f0fac8 100644
 --- a/content/handlers/html/css.c
 +++ b/content/handlers/html/css.c
 @@ -315,7 +315,15 @@ static void html_css_process_modified_styles(void *pw)
@@ -33,7 +33,7 @@ index 0bc3884..b29f0fa 100644
  
  
 diff --git a/content/handlers/html/dom_event.c b/content/handlers/html/dom_event.c
-index 83a84ac..76b4286 100644
+index 83a84ac7b..76b4286a1 100644
 --- a/content/handlers/html/dom_event.c
 +++ b/content/handlers/html/dom_event.c
 @@ -577,6 +577,43 @@ static void html_texty_element_update(html_content *htmlc, dom_node *node)
@@ -95,7 +95,7 @@ index 83a84ac..76b4286 100644
  
  				msg_data.jsthread = &htmlc->jsthread;
 diff --git a/content/handlers/html/html.c b/content/handlers/html/html.c
-index f92985b..d0fe1a8 100644
+index f92985b04..d0fe1a803 100644
 --- a/content/handlers/html/html.c
 +++ b/content/handlers/html/html.c
 @@ -72,6 +72,9 @@
@@ -120,7 +120,7 @@ index f92985b..d0fe1a8 100644
  
  	if (lwc_intern_string("*", SLEN("*"), &c->universal) != lwc_error_ok) {
 diff --git a/content/handlers/html/layout.c b/content/handlers/html/layout.c
-index d3b6d8f..25c8615 100644
+index d3b6d8f31..25c8615f5 100644
 --- a/content/handlers/html/layout.c
 +++ b/content/handlers/html/layout.c
 @@ -789,6 +789,13 @@ layout_minmax_line(struct box *first,
@@ -137,8 +137,203 @@ index d3b6d8f..25c8615 100644
  	NSLOG(layout, DEBUG,  "line_min %i, line_max %i", min, max);
  
  	assert(b != first);
+diff --git a/content/handlers/javascript/duktape/dukky.c b/content/handlers/javascript/duktape/dukky.c
+index a780b0067..4cd1d6d40 100644
+--- a/content/handlers/javascript/duktape/dukky.c
++++ b/content/handlers/javascript/duktape/dukky.c
+@@ -53,6 +53,27 @@
+ #define GENERICS_MAGIC MAGIC(GENERICS_TABLE)
+ #define THREAD_MAP MAGIC(THREAD_MAP)
+ 
++/**
++ * dukky javascript heap
++ */
++union dukky_alloc_header {
++	struct {
++		duk_size_t size;
++	} info;
++	long double align_long_double;
++	double align_double;
++	void *align_pointer;
++	uint64_t align_uint64;
++};
++
++/* Duktape requires allocations aligned to at least 8 bytes. */
++typedef char dukky_alloc_header_alignment_check[
++    __alignof__(union dukky_alloc_header) >= 8 ? 1 : -1
++];
++typedef char dukky_alloc_header_size_check[
++    sizeof(union dukky_alloc_header) % 8 == 0 ? 1 : -1
++];
++
+ /**
+  * dukky javascript heap
+  */
+@@ -62,6 +83,11 @@ struct jsheap {
+ 	bool pending_destroy; /**< Whether this heap is pending destruction */
+ 	unsigned int live_threads; /**< number of live threads */
+ 	uint64_t exec_start_time;
++	duk_size_t js_memory_current;
++	duk_size_t js_memory_peak;
++	duk_size_t js_alloc_count;
++	duk_size_t js_realloc_count;
++	duk_size_t js_free_count;
+ };
+ 
+ /**
+@@ -547,32 +573,119 @@ dukky_inject_not_ctr(duk_context *ctx, int idx, const char *name)
+ 
+ static void *dukky_alloc_function(void *udata, duk_size_t size)
+ {
+-	if (size == 0)
+-		return NULL;
++        jsheap *heap = udata;
++        union dukky_alloc_header *header;
++        duk_size_t total_size;
+ 
+-	return malloc(size);
+-}
++        if (size == 0)
++                return NULL;
+ 
+-static void *dukky_realloc_function(void *udata, void *ptr, duk_size_t size)
+-{
+-	if (ptr == NULL && size == 0)
+-		return NULL;
++        if (size > (duk_size_t)-1 - sizeof(*header))
++                return NULL;
+ 
+-	if (size == 0) {
+-		free(ptr);
+-		return NULL;
+-	}
++        total_size = sizeof(*header) + size;
++        header = malloc(total_size);
++        if (header == NULL)
++                return NULL;
++
++        header->info.size = size;
++
++        if (heap != NULL) {
++                if (total_size > (duk_size_t)-1 - heap->js_memory_current)
++                        heap->js_memory_current = (duk_size_t)-1;
++                else
++                        heap->js_memory_current += total_size;
+ 
+-	return realloc(ptr, size);
++                if (heap->js_memory_current > heap->js_memory_peak)
++                        heap->js_memory_peak = heap->js_memory_current;
++
++                heap->js_alloc_count++;
++        }
++
++        return header + 1;
+ }
+ 
++static void *dukky_realloc_function(void *udata, void *ptr, duk_size_t size)
++{
++        jsheap *heap = udata;
++        union dukky_alloc_header *header;
++        union dukky_alloc_header *new_header;
++        duk_size_t old_total_size;
++        duk_size_t new_total_size;
++
++        if (ptr == NULL)
++                return dukky_alloc_function(udata, size);
++
++        header = ((union dukky_alloc_header *)ptr) - 1;
++        old_total_size = sizeof(*header) + header->info.size;
++
++        if (size == 0) {
++                if (heap != NULL) {
++                        if (heap->js_memory_current >= old_total_size)
++                                heap->js_memory_current -= old_total_size;
++                        else
++                                heap->js_memory_current = 0;
++                        heap->js_free_count++;
++                }
++                free(header);
++                return NULL;
++        }
++
++        if (size > (duk_size_t)-1 - sizeof(*header))
++                return NULL;
++
++        new_total_size = sizeof(*header) + size;
++        new_header = realloc(header, new_total_size);
++        if (new_header == NULL)
++                return NULL;
++
++        new_header->info.size = size;
++
++        if (heap != NULL) {
++                if (heap->js_memory_current >= old_total_size)
++                        heap->js_memory_current -= old_total_size;
++                else
++                        heap->js_memory_current = 0;
++
++                if (new_total_size > (duk_size_t)-1 - heap->js_memory_current)
++                        heap->js_memory_current = (duk_size_t)-1;
++                else
++                        heap->js_memory_current += new_total_size;
++
++                if (heap->js_memory_current > heap->js_memory_peak)
++                        heap->js_memory_peak = heap->js_memory_current;
++
++                heap->js_realloc_count++;
++        }
++
++        return new_header + 1;
++}
+ 
+ static void dukky_free_function(void *udata, void *ptr)
+ {
+-	if (ptr != NULL)
+-		free(ptr);
++        jsheap *heap = udata;
++        union dukky_alloc_header *header;
++        duk_size_t total_size;
++
++        if (ptr == NULL)
++                return;
++
++        header = ((union dukky_alloc_header *)ptr) - 1;
++        total_size = sizeof(*header) + header->info.size;
++
++        if (heap != NULL) {
++                if (heap->js_memory_current >= total_size)
++                        heap->js_memory_current -= total_size;
++                else
++                        heap->js_memory_current = 0;
++
++                heap->js_free_count++;
++        }
++
++        free(header);
+ }
+ 
++
+ /* exported interface documented in js.h */
+ void js_initialise(void)
+ {
+@@ -630,7 +743,15 @@ static void dukky_destroyheap(jsheap *heap)
+ 	assert(heap->pending_destroy == true);
+ 	assert(heap->live_threads == 0);
+ 	NSLOG(dukky, DEBUG, "Destroying duktape javascript context");
++	NSLOG(dukky, INFO,
++	      "Duktape before destroy: current=%"PRIsizet" peak=%"PRIsizet,
++	      heap->js_memory_current, heap->js_memory_peak);
+ 	duk_destroy_heap(heap->ctx);
++	NSLOG(dukky, INFO,
++	      "Duktape after destroy: current=%"PRIsizet
++	      " alloc=%"PRIsizet" realloc=%"PRIsizet" free=%"PRIsizet,
++	      heap->js_memory_current, heap->js_alloc_count,
++	      heap->js_realloc_count, heap->js_free_count);
+ 	free(heap);
+ }
+ 
 diff --git a/content/urldb.c b/content/urldb.c
-index 950c370..b22eeea 100644
+index 950c37061..b22eeea9e 100644
 --- a/content/urldb.c
 +++ b/content/urldb.c
 @@ -115,6 +115,9 @@
@@ -152,7 +347,7 @@ index 950c370..b22eeea 100644
   * cookie entry.
   *
 diff --git a/desktop/browser_window.c b/desktop/browser_window.c
-index 226741b..3525d01 100644
+index 226741be5..3525d017a 100644
 --- a/desktop/browser_window.c
 +++ b/desktop/browser_window.c
 @@ -1604,6 +1604,13 @@ browser_window_callback(hlcache_handle *c, const hlcache_event *event, void *pw)
@@ -184,7 +379,7 @@ index 226741b..3525d01 100644
  	if (flags & BW_CREATE_CLONE) {
  		assert(existing != NULL);
 diff --git a/frontends/Makefile.hts b/frontends/Makefile.hts
-index 83c1cfa..bcd0dfa 100644
+index 83c1cfa3d..bcd0dfa7b 100644
 --- a/frontends/Makefile.hts
 +++ b/frontends/Makefile.hts
 @@ -115,7 +115,7 @@ else
@@ -197,7 +392,7 @@ index 83c1cfa..bcd0dfa 100644
  # Check for valid TARGET
  ifeq ($(filter $(VLDTARGET),$(TARGET)),)
 diff --git a/utils/config.h b/utils/config.h
-index 3914771..5c479e2 100644
+index 3914771fd..5c479e221 100644
 --- a/utils/config.h
 +++ b/utils/config.h
 @@ -145,7 +145,7 @@ char *realpath(const char *path, char *resolved_path);
@@ -210,7 +405,7 @@ index 3914771..5c479e2 100644
  #endif
  
 diff --git a/utils/hashtable.c b/utils/hashtable.c
-index 95e2ba1..14d495c 100644
+index 95e2ba1df..14d495cc1 100644
 --- a/utils/hashtable.c
 +++ b/utils/hashtable.c
 @@ -32,7 +32,6 @@
@@ -348,7 +543,7 @@ index 95e2ba1..14d495c 100644
  	return res;
  }
 diff --git a/utils/messages.c b/utils/messages.c
-index ce48446..f320c02 100644
+index ce4844622..f320c0279 100644
 --- a/utils/messages.c
 +++ b/utils/messages.c
 @@ -31,7 +31,6 @@
@@ -360,7 +555,7 @@ index ce48446..f320c02 100644
  
  #include "utils/log.h"
 diff --git a/utils/nsoption.h b/utils/nsoption.h
-index 134e09e..219d549 100644
+index 134e09e34..219d5499d 100644
 --- a/utils/nsoption.h
 +++ b/utils/nsoption.h
 @@ -71,6 +71,8 @@

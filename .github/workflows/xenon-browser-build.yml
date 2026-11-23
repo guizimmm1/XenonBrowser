@@ -293,13 +293,13 @@ jobs:
         run: |
           set -euo pipefail
           cd dist
-          zip -qr -9 xenon-browser-xbox360.zip ns360
-          sha256sum xenon-browser-xbox360.zip ns360/default.xex
+          zip -qr -9 Xenon-Browser-Alpha-032.zip ns360
+          sha256sum Xenon-Browser-Alpha-032.zip ns360/default.xex
 
       - name: Upload Xenon Browser
         uses: actions/upload-artifact@v4
         with:
-          name: xenon-browser-xbox360
-          path: dist/xenon-browser-xbox360.zip
+          name: Xenon-Browser-Alpha-032
+          path: dist/Xenon-Browser-Alpha-032.zip
           if-no-files-found: error
           retention-days: 14

@@ -1428,9 +1428,9 @@ static void draw_status_bar(void)
 
 	for (size_t i = 0; i < sizeof(hints) / sizeof(hints[0]); i++)
 		total += hint_width(hints[i].button, hints[i].what);
-	x = XENON_WIDTH - 10 - total;
+	x = XENON_WIDTH - 34 - total;
 	for (size_t i = 0; i < sizeof(hints) / sizeof(hints[0]); i++)
-		x = hint(x, BOTTOM_Y + CHROME_BOTTOM / 2, hints[i].button, hints[i].what,
+		x = hint(x, BOTTOM_Y + CHROME_BOTTOM / 2 - 5, hints[i].button, hints[i].what,
 			 C_MUTED);
 
 	if (status_text[0] != '\0')
@@ -1556,6 +1556,7 @@ static void draw_home(void)
 	text_centre(XENON_WIDTH / 2, 668,
 		    "Move with the left stick, press A to open. BACK returns here.",
 		    C_FAINT, 14, XENON_TEXT_REGULAR);
+        text_right(XENON_WIDTH - 18, 682, "v0.0.3 Alpha", C_FAINT, 12);
 }
 
 /* ------------------------------------------------------------------ */
