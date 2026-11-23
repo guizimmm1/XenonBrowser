@@ -1024,7 +1024,7 @@ static char *http_build_request(struct fetch_http_context *ctx, const char *host
 	ok = buf_add(&buf, &len, &cap,
 		     "%s %s HTTP/1.1\r\n"
 		     "Host: %s\r\n"
-		     "User-Agent: NetSurf/3.11 (Xenon)\r\n"
+		     "User-Agent: XenonBrowser/0.1 (Xbox 360)\r\n"
 		     "Accept: text/html,text/css,*/*;q=0.1\r\n"
 		     "Accept-Encoding: identity\r\n"
 		     "Connection: keep-alive\r\n",

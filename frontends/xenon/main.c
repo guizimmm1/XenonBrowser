@@ -396,7 +396,7 @@ int main(int argc, char **argv)
 
 	ret = netsurf_init(NULL);
 	if (ret != NSERROR_OK)
-		die("NetSurf init failed");
+		die("Xenon Browser init failed");
 
 	/* Cookies live beside the XEX between runs, so a site you signed in to
 	 * stays signed in; Xenia keeps game:\\ read-only, so cache:\\ there. */

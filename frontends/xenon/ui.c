@@ -197,7 +197,7 @@ static const struct dial dials[DIAL_COUNT] = {
 	{ "Help", "file:///game:/help.html", ICON_HELP, 0x6b7a8a },
 	{ "YouTube", "https://www.youtube.com/", ICON_PLAY, 0xe0332b },
 	{ "Xbox 360", "https://en.wikipedia.org/wiki/Xbox_360", ICON_ORB, 0x6aa82f },
-	{ "NetSurf", "https://www.netsurf-browser.org/", ICON_N, 0xd9692b },
+	{ "Xenon Browser", "https://github.com/guizimmm1/XenonBrowser", ICON_ORB, 0x3b78c4 },
 	{ "HTML", "https://en.wikipedia.org/wiki/HTML", ICON_CODE, 0xd8492a },
 	{ "Example", "https://example.com/", ICON_E, 0x7b6fc6 },
 	{ "About", "file:///game:/about.html", ICON_INFO, 0x3b78c4 },
@@ -1514,7 +1514,7 @@ static void draw_home(void)
 	/* The time, large, as the dashboard does. */
 	xenon_clock_text(clock_text, sizeof(clock_text));
 	text_centre(XENON_WIDTH / 2, 200, clock_text, C_TEXT, 58, XENON_TEXT_REGULAR);
-	text_centre(XENON_WIDTH / 2, 232, "NetSurf 360", C_MUTED, 17, XENON_TEXT_REGULAR);
+	text_centre(XENON_WIDTH / 2, 232, "Xenon Browser", C_MUTED, 17, XENON_TEXT_REGULAR);
 
 	/* Search pill. */
 	xenon_overlay_shadow(SEARCH_X0, SEARCH_Y0, SEARCH_X1, SEARCH_Y1, 26, 6, 70);
