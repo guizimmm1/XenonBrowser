@@ -229,6 +229,11 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$HOME/xsdk-gcc/bin:$PATH"
+
+          # Enable the Xenon clock callback used by the TLS frontend.
+          sed -i '/^#undef MBEDTLS_SSL_PROTO_TLS1_3/i #define MBEDTLS_PLATFORM_TIME_ALT' \
+            third_party/mbedtls-xenon/configs/config-xsdk.h
+
           cmake -S third_party/mbedtls-xenon \
             -B third_party/mbedtls-xenon/build-xsdk \
             -G Ninja \
