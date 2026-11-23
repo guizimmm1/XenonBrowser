@@ -259,7 +259,6 @@ jobs:
       - name: Compile Xenon Browser
         run: |
           set -euo pipefail
-          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
           make -C netsurf-src TARGET=xenon PREFIX="$PREFIX" -j2
           test -s netsurf-src/nsxenon
