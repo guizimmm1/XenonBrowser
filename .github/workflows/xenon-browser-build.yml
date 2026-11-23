@@ -160,6 +160,7 @@ jobs:
               --prefix="$PREFIX" --disable-shared --enable-static
           make -j2 libjpeg.la
           make install-libLTLIBRARIES install-includeHEADERS
+          install -D -m 644 jconfig.h "$PREFIX/include/jconfig.h"
 
       - name: Build utf8proc
         run: |
