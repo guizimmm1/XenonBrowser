@@ -205,6 +205,7 @@ jobs:
             -DZLIB_INCLUDE_DIR="$PREFIX/include"
           cmake --build "$RUNNER_TEMP/libpng-build" --parallel 2
           cmake --install "$RUNNER_TEMP/libpng-build"
+          ln -sf libpng.a "$PREFIX/lib/libpng16.a"
 
       - name: Build NetSurf image libraries
         run: |

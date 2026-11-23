@@ -303,16 +303,3 @@ int inet_aton(const char *cp, struct in_addr *inp)
 {
 	return inet_pton(AF_INET, cp, inp) == 1;
 }
-
-int uname(struct utsname *buf)
-{
-	if (buf == NULL)
-		return -1;
-	memset(buf, 0, sizeof(*buf));
-	strcpy(buf->sysname, "XenonOS");
-	strcpy(buf->nodename, "xbox360");
-	strcpy(buf->release, "1.0");
-	strcpy(buf->version, "xsdk");
-	strcpy(buf->machine, "Xbox 360");
-	return 0;
-}

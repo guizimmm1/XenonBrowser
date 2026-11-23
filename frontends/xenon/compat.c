@@ -29,55 +29,6 @@ int fstatat(int fd, const char *path, struct stat *buf, int flags)
 	return stat(path, buf);
 }
 
-int access(const char *path, int mode)
-{
-	struct stat st;
-	(void)mode;
-	return stat(path, &st);
-}
-
-int rmdir(const char *path)
-{
-	(void)path;
-	errno = ENOSYS;
-	return -1;
-}
-
-char *realpath(const char *path, char *resolved_path)
-{
-	size_t len;
-
-	if (path == NULL) {
-		errno = EINVAL;
-		return NULL;
-	}
-	len = strlen(path) + 1;
-
-	if (resolved_path == NULL) {
-		resolved_path = malloc(len);
-		if (resolved_path == NULL) {
-			errno = ENOMEM;
-			return NULL;
-		}
-	}
-	memcpy(resolved_path, path, len);
-	return resolved_path;
-}
-
-ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
-{
-	off_t saved = lseek(fd, 0, SEEK_CUR);
-	ssize_t res;
-
-	if (saved == (off_t)-1)
-		return -1;
-	if (lseek(fd, offset, SEEK_SET) == (off_t)-1)
-		return -1;
-	res = write(fd, buf, count);
-	lseek(fd, saved, SEEK_SET);
-	return res;
-}
-
 int regcomp(regex_t *preg, const char *regex, int cflags)
 {
 	(void)preg;
@@ -160,12 +111,4 @@ int scandir(const char *dirp, struct dirent ***namelist,
 	}
 	*namelist = list;
 	return (int)count;
-}
-
-int ftruncate(int fd, off_t length)
-{
-	(void)fd;
-	(void)length;
-	errno = ENOSYS;
-	return -1;
 }
