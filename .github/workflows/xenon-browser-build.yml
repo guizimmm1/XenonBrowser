@@ -61,7 +61,6 @@ jobs:
           ln -sf powerpc-xsdk-elf-as "$HOME/xsdk-gcc/bin/as"
           ln -sf powerpc-xsdk-elf-ld "$HOME/xsdk-gcc/bin/ld"
           export PATH="$HOME/xsdk-gcc/bin:$PATH"
-          echo "$HOME/xsdk-gcc/bin" >> "$GITHUB_PATH"
 
           CC1_PATH="$("$HOME/xsdk-gcc/bin/powerpc-xsdk-elf-gcc" -print-prog-name=cc1)"
           echo "CC1 encontrado em: $CC1_PATH"
@@ -130,6 +129,7 @@ jobs:
       - name: Build zlib
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           cd deps/zlib
           export CC="${TC}gcc"
           export AR="${TC}ar"
@@ -146,6 +146,7 @@ jobs:
       - name: Build JPEG
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           mkdir -p "$RUNNER_TEMP/jpeg"
           curl -L https://www.ijg.org/files/jpegsrc.v9e.tar.gz \
             -o "$RUNNER_TEMP/jpeg.tar.gz"
@@ -162,6 +163,7 @@ jobs:
       - name: Build utf8proc
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           make -C deps/utf8proc -j2 \
             CC="${TC}gcc" AR="${TC}ar" \
             CFLAGS="-mcpu=cell -fno-pic -O2" \
@@ -170,6 +172,7 @@ jobs:
       - name: Build PNG
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           cmake -S deps/libpng -B "$RUNNER_TEMP/libpng-build" \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE="$XSDK_ROOT/cmake/xsdk.cmake" \
@@ -187,6 +190,7 @@ jobs:
       - name: Build NetSurf image libraries
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           export PREFIX
           export NSSHARED="$GITHUB_WORKSPACE/deps/buildsystem"
           export CC="${TC}gcc"
@@ -199,12 +203,14 @@ jobs:
       - name: Build core NetSurf libraries
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           chmod +x build_deps.sh
           ./build_deps.sh
 
       - name: Build mbedTLS for Xbox 360
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           cmake -S third_party/mbedtls-xenon \
             -B third_party/mbedtls-xenon/build-xsdk \
             -G Ninja \
@@ -236,6 +242,7 @@ jobs:
       - name: Compile Xenon Browser
         run: |
           set -euo pipefail
+          export PATH="$HOME/xsdk-gcc/bin:$PATH"
           export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
           make -C netsurf-src TARGET=xenon PREFIX="$PREFIX" -j2
           test -s netsurf-src/nsxenon
