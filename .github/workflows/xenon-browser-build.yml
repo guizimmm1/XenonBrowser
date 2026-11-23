@@ -53,7 +53,16 @@ jobs:
           cp -a "$RUNNER_TEMP/xsdk-sdk/include/." "$XSDK/include/"
 
           cp -a "$RUNNER_TEMP/xsdk-sdk/xsdk-gcc" "$HOME/"
-          chmod -R a+x "$HOME/xsdk-gcc/bin"
+          chmod -R a+rx "$HOME/xsdk-gcc/bin" "$HOME/xsdk-gcc/libexec"
+
+          CC1_PATH="$("$HOME/xsdk-gcc/bin/powerpc-xsdk-elf-gcc" -print-prog-name=cc1)"
+          echo "CC1 encontrado em: $CC1_PATH"
+          test -x "$CC1_PATH"
+
+          echo 'int main(void) { return 0; }' | \
+            "$HOME/xsdk-gcc/bin/powerpc-xsdk-elf-gcc" \
+            -x c -c -o /tmp/xsdk-smoke.o -
+          echo "Teste de compilação PowerPC: OK"
 
           echo "XSDK_ROOT=$XSDK" >> "$GITHUB_ENV"
           echo "PREFIX=$GITHUB_WORKSPACE/prefix" >> "$GITHUB_ENV"
