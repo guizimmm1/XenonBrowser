@@ -14,7 +14,8 @@ export HOST=powerpc-xsdk-elf
 export BUILD=x86_64-linux-gnu
 export CC="${TC}gcc"
 export AR="${TC}ar"
-export CFLAGS="-mcpu=cell -fno-pic -O2 -g"
+export CFLAGS="-B$HOME/xsdk-gcc/bin/ -mcpu=cell -fno-pic -O2 -g"
+export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
 LIBS=("$@")
 if [ ${#LIBS[@]} -eq 0 ]; then
