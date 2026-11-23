@@ -254,6 +254,8 @@ jobs:
           XENON_AR := $TC"ar"
           XSDK_ROOT := $XSDK_ROOT
           XENON_PREFIX := $PREFIX
+          CFLAGS += -B$HOME/xsdk-gcc/bin/
+          CXXFLAGS += -B$HOME/xsdk-gcc/bin/
           EOF
 
       - name: Compile Xenon Browser
