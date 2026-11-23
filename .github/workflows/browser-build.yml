@@ -53,6 +53,7 @@ jobs:
           cp -a "$RUNNER_TEMP/xsdk-sdk/include/." "$XSDK/include/"
 
           cp -a "$RUNNER_TEMP/xsdk-sdk/xsdk-gcc" "$HOME/"
+chmod -R a+x "$HOME/xsdk-gcc/bin"
 
           echo "XSDK_ROOT=$XSDK" >> "$GITHUB_ENV"
           echo "PREFIX=$GITHUB_WORKSPACE/prefix" >> "$GITHUB_ENV"
