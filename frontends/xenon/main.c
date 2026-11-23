@@ -303,8 +303,13 @@ static void redraw_window(void)
 		return;
 	}
 
-	xenon_get_active_scroll(&sx, &sy);
-	dy = sy - drawn_page.sy;
+        if (!browser_window_redraw_ready(xenon_bw)) {
+            xenon_needs_redraw = true;
+            return;
+        }
+
+        xenon_get_active_scroll(&sx, &sy);
+        dy = sy - drawn_page.sy;
 
 	if (damage_all || !drawn_page.valid || drawn_page.bw != xenon_bw ||
 	    sx != drawn_page.sx || dy >= XENON_PAGE_HEIGHT || -dy >= XENON_PAGE_HEIGHT) {
